@@ -54,9 +54,11 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 void add_pybinded_ceres_examples(py::module& m);
 void add_custom_cost_functions(py::module& m);
 void add_torch_functionality(py::module& m);
-
-// Function to create a ceres Problem with the default options that Ceres does
-// NOT take ownership. Needed since Python expects to own the memory.
+void add_pybinded_ceres_entry(py::module& m);
+void add_pybinded_point_model(py::module& m);
+void add_pybinded_stick_model(py::module& m);
+// Function to create a ceres Problem with the default options that Ceres
+// does NOT take ownership. Needed since Python expects to own the memory.
 ceres::Problem CreatePythonProblem() {
   ceres::Problem::Options o;
   o.local_parameterization_ownership = ceres::Ownership::DO_NOT_TAKE_OWNERSHIP;
@@ -471,6 +473,7 @@ PYBIND11_MODULE(PyCeres, m) {
       m, "SparseLinearAlgebraLibraryType")
       .value("SUITE_SPARSE",
              ceres::SparseLinearAlgebraLibraryType::SUITE_SPARSE)
+      // .value("CX_SPARSE", ceres::SparseLinearAlgebraLibraryType::CX_SPARSE)
       .value("EIGEN_SPARSE",
              ceres::SparseLinearAlgebraLibraryType::EIGEN_SPARSE)
       .value("ACCELERATE_SPARSE",
@@ -816,6 +819,8 @@ PYBIND11_MODULE(PyCeres, m) {
                                &s_options::sparse_linear_algebra_library_type);
   solver_options.def_readwrite("use_explicit_schur_complement",
                                &s_options::use_explicit_schur_complement);
+  // solver_options.def_readwrite("use_postordering",
+  //  &s_options::use_postordering);
   solver_options.def_readwrite("dynamic_sparsity",
                                &s_options::dynamic_sparsity);
   solver_options.def_readwrite("use_mixed_precision_solves",
@@ -1252,6 +1257,9 @@ PYBIND11_MODULE(PyCeres, m) {
 
   add_pybinded_ceres_examples(m);
   add_custom_cost_functions(m);
+  add_pybinded_ceres_entry(m);
+  add_pybinded_point_model(m);
+  add_pybinded_stick_model(m);
 
 #ifdef WITH_PYTORCH
   add_torch_functionality(m);
